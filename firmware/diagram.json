@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "author": "Custom",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-esp32-devkit-v1", "id": "esp", "top": 4.7, "left": 100.6, "attrs": {} },
+    { "type": "chip-gps", "id": "gps1", "top": -123.78, "left": 302.4, "attrs": {} },
+    {
+      "type": "wokwi-hc-sr04",
+      "id": "us1",
+      "top": -200.1,
+      "left": -52.1,
+      "attrs": { "distance": "400" }
+    },
+    { "type": "wokwi-pir-motion-sensor", "id": "pir1", "top": 148, "left": -45.78, "attrs": {} }
+  ],
+  "connections": [
+    [ "gps1:TX", "esp:RX2", "green", [ "v82.62", "h-224.76", "v138.48" ] ],
+    [ "gps1:RX", "esp:TX2", "blue", [ "h-17.39", "v73.02", "h-197.77", "v147.88" ] ],
+    [ "gps1:VCC", "esp:3V3", "red", [ "h-64.8", "v63.42", "h16.8", "v214.98" ] ],
+    [ "gps1:GND", "esp:GND.1", "black", [ "v92.22", "h-28.8", "v167.08" ] ],
+    [ "us1:TRIG", "esp:D5", "orange", [ "v38.4", "h124.4", "v163.2" ] ],
+    [ "us1:ECHO", "esp:D18", "purple", [ "v48", "h95.2", "v144" ] ],
+    [ "us1:VCC", "esp:VIN", "red", [ "v67.2", "h38.4", "v196.9" ] ],
+    [ "us1:GND", "esp:GND.2", "black", [ "v57.6", "h27.6", "v197" ] ],
+    [ "pir1:OUT", "esp:D4", "yellow", [ "v57.6", "h230.26", "v-172.9" ] ],
+    [ "pir1:VCC", "esp:3V3", "red", [ "v86.4", "h288", "v-163.2" ] ],
+    [ "pir1:GND", "esp:GND.3", "black", [ "h0" ] ],
+    [ "pir1:GND", "esp:GND.2", "black", [ "v0", "h66.94", "v-96" ] ]
+  ],
+  "dependencies": {}
+}
