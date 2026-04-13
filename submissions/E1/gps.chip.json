@@ -1,0 +1,12 @@
+{
+  "name": "GPS-UART",
+  "author": "Custom",
+  "pins": ["VCC", "GND", "TX", "RX"],
+  "controls": [],
+  "display": {
+    "color": "#2244aa",
+    "width": 150,
+    "height": 0,
+    "text": "GPS"
+  }
+}
