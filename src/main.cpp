@@ -14,8 +14,8 @@ const char* WIFI_SSID       = "Wokwi-GUEST";
 const char* WIFI_PASS       = "";
 const char* MQTT_BROKER     = "broker.hivemq.com";
 const int   MQTT_PORT       = 1883;
-const char* MQTT_TOPIC      = "esp32/sensorhub/report";
-const char* MQTT_TOPIC_LOG  = "esp32/sensorhub/log";
+const char* MQTT_TOPIC      = "eece5515/trektrak/report";
+const char* MQTT_TOPIC_LOG  = "eece5515/trektrak/log";
 
 WiFiClient   wifiClient;
 PubSubClient mqtt(wifiClient);
