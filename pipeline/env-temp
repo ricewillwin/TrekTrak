@@ -1,0 +1,7 @@
+DOMAIN=<domain>
+
+# InfluxDB
+INFLUXDB_PASSWORD=changeme1234
+INFLUXDB_TOKEN=changeme_this_must_be_at_least_32_chars!!
+INFLUXDB_ORG=<org>
+INFLUXDB_BUCKET=<bucket>
