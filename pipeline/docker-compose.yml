@@ -5,6 +5,8 @@ networks:
 volumes:
   mosquitto_data:
   influxdb_data:
+  grafana_data:
+  nodered_data:
 
 services:
   traefik:
@@ -63,3 +65,42 @@ services:
       - mosquitto_data:/mosquitto/data
     networks:
       - iot
+
+  node-red:
+    image: nodered/node-red:latest
+    container_name: node-red
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ:-Europe/London}
+    volumes:
+      - nodered_data:/data
+    networks:
+      - iot
+    depends_on:
+      - mosquitto
+      - influxdb
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.nodered.rule=Host(`nodered.${DOMAIN}`)"
+      - "traefik.http.routers.nodered.entrypoints=web"
+      - "traefik.http.services.nodered.loadbalancer.server.port=1880"
+
+  grafana:
+    image: grafana/grafana-oss:latest
+    container_name: grafana
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+      - GF_INSTALL_PLUGINS=grafana-clock-panel
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - iot
+    depends_on:
+      - influxdb
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.rule=Host(`grafana.${DOMAIN}`)"
+      - "traefik.http.routers.grafana.entrypoints=web"
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"

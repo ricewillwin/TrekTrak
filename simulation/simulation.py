@@ -38,7 +38,7 @@ except ImportError:
 
 
 # ── Configuration defaults ────────────────────────────────────────────────
-BROKER       = "broker.hivemq.com"
+BROKER       = "localhost"
 PORT         = 1883
 TOPIC        = "trektrak/sensor/report"
 TOPIC_LOG    = "trektrak/sensor/log"
