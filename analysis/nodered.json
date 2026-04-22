@@ -1,0 +1,170 @@
+[
+    {
+        "id": "f6f2187d.f17ca8",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "807027565ff98716",
+        "type": "mqtt in",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "topic": "trektrak/sensor/#",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "c240757cdec0647e",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 180,
+        "y": 360,
+        "wires": [
+            [
+                "9d75e05170b0946e"
+            ]
+        ]
+    },
+    {
+        "id": "f99d419a1ef2eedb",
+        "type": "debug",
+        "z": "f6f2187d.f17ca8",
+        "name": "json",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 590,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "0b5b0d051449094d",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "Ultrasonic Sensor",
+        "func": "msg.payload = msg.payload.ultrasonic;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 630,
+        "y": 360,
+        "wires": [
+            [
+                "54392fe7560a542d"
+            ]
+        ]
+    },
+    {
+        "id": "54392fe7560a542d",
+        "type": "debug",
+        "z": "f6f2187d.f17ca8",
+        "name": "ultrasonic",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 840,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "9d75e05170b0946e",
+        "type": "json",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "property": "payload",
+        "action": "obj",
+        "pretty": true,
+        "x": 370,
+        "y": 360,
+        "wires": [
+            [
+                "0b5b0d051449094d",
+                "f99d419a1ef2eedb",
+                "1bea9ab9357d4130"
+            ]
+        ]
+    },
+    {
+        "id": "1bea9ab9357d4130",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "PIR Sensor",
+        "func": "msg.payload = msg.payload.pir;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 610,
+        "y": 460,
+        "wires": [
+            [
+                "120f663c3ae2717d"
+            ]
+        ]
+    },
+    {
+        "id": "120f663c3ae2717d",
+        "type": "debug",
+        "z": "f6f2187d.f17ca8",
+        "name": "pir",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 830,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "c240757cdec0647e",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "mosquitto",
+        "port": 1883,
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    }
+]
