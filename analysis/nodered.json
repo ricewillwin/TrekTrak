@@ -11,7 +11,7 @@
         "type": "mqtt in",
         "z": "f6f2187d.f17ca8",
         "name": "",
-        "topic": "trektrak/sensor/#",
+        "topic": "trektrak/sensor/report",
         "qos": "2",
         "datatype": "auto-detect",
         "broker": "c240757cdec0647e",
@@ -19,7 +19,7 @@
         "rap": true,
         "rh": 0,
         "inputs": 0,
-        "x": 180,
+        "x": 200,
         "y": 360,
         "wires": [
             [
@@ -41,7 +41,7 @@
         "statusVal": "",
         "statusType": "auto",
         "x": 590,
-        "y": 220,
+        "y": 160,
         "wires": []
     },
     {
@@ -49,7 +49,7 @@
         "type": "function",
         "z": "f6f2187d.f17ca8",
         "name": "Ultrasonic Sensor",
-        "func": "msg.payload = msg.payload.ultrasonic;\nreturn msg;",
+        "func": "msg.payload = msg.payload.ultrasonic;\n\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -60,7 +60,8 @@
         "y": 360,
         "wires": [
             [
-                "54392fe7560a542d"
+                "54392fe7560a542d",
+                "d79c93aa018e3a84"
             ]
         ]
     },
@@ -69,16 +70,16 @@
         "type": "debug",
         "z": "f6f2187d.f17ca8",
         "name": "ultrasonic",
-        "active": false,
+        "active": true,
         "tosidebar": true,
         "console": false,
         "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
+        "complete": "true",
+        "targetType": "full",
         "statusVal": "",
         "statusType": "auto",
         "x": 840,
-        "y": 360,
+        "y": 320,
         "wires": []
     },
     {
@@ -95,7 +96,8 @@
             [
                 "0b5b0d051449094d",
                 "f99d419a1ef2eedb",
-                "1bea9ab9357d4130"
+                "1bea9ab9357d4130",
+                "169b2d35ad754dfb"
             ]
         ]
     },
@@ -104,7 +106,7 @@
         "type": "function",
         "z": "f6f2187d.f17ca8",
         "name": "PIR Sensor",
-        "func": "msg.payload = msg.payload.pir;\nreturn msg;",
+        "func": "msg.payload = msg.payload.pir;\n\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -115,7 +117,8 @@
         "y": 460,
         "wires": [
             [
-                "120f663c3ae2717d"
+                "120f663c3ae2717d",
+                "d77b9e03cfa645bb"
             ]
         ]
     },
@@ -124,7 +127,7 @@
         "type": "debug",
         "z": "f6f2187d.f17ca8",
         "name": "pir",
-        "active": false,
+        "active": true,
         "tosidebar": true,
         "console": false,
         "tostatus": false,
@@ -133,7 +136,99 @@
         "statusVal": "",
         "statusType": "auto",
         "x": 830,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "d79c93aa018e3a84",
+        "type": "influxdb out",
+        "z": "f6f2187d.f17ca8",
+        "influxdb": "eb3fff78eeb8a529",
+        "name": "Ultrasonic",
+        "measurement": "ultrasonic",
+        "precision": "",
+        "retentionPolicy": "",
+        "database": "database",
+        "precisionV18FluxV20": "ms",
+        "retentionPolicyV18Flux": "",
+        "org": "trektrak",
+        "bucket": "sensor",
+        "x": 840,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "d77b9e03cfa645bb",
+        "type": "influxdb out",
+        "z": "f6f2187d.f17ca8",
+        "influxdb": "eb3fff78eeb8a529",
+        "name": "PIR",
+        "measurement": "pir",
+        "precision": "",
+        "retentionPolicy": "",
+        "database": "database",
+        "precisionV18FluxV20": "ms",
+        "retentionPolicyV18Flux": "",
+        "org": "trektrak",
+        "bucket": "sensor",
+        "x": 830,
         "y": 460,
+        "wires": []
+    },
+    {
+        "id": "169b2d35ad754dfb",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "GPS Sensor",
+        "func": "msg.payload = msg.payload.gps;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 610,
+        "y": 560,
+        "wires": [
+            [
+                "f107b6b9361e2faa",
+                "3bec7dc11bc5d4c6"
+            ]
+        ]
+    },
+    {
+        "id": "f107b6b9361e2faa",
+        "type": "debug",
+        "z": "f6f2187d.f17ca8",
+        "name": "gps",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 830,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "3bec7dc11bc5d4c6",
+        "type": "influxdb out",
+        "z": "f6f2187d.f17ca8",
+        "influxdb": "eb3fff78eeb8a529",
+        "name": "GPS",
+        "measurement": "gps",
+        "precision": "",
+        "retentionPolicy": "",
+        "database": "database",
+        "precisionV18FluxV20": "ms",
+        "retentionPolicyV18Flux": "",
+        "org": "trektrak",
+        "bucket": "sensor",
+        "x": 830,
+        "y": 560,
         "wires": []
     },
     {
@@ -166,5 +261,28 @@
         "willMsg": {},
         "userProps": "",
         "sessionExpiry": ""
+    },
+    {
+        "id": "eb3fff78eeb8a529",
+        "type": "influxdb",
+        "hostname": "127.0.0.1",
+        "port": 8086,
+        "protocol": "http",
+        "database": "database",
+        "name": "Influxdb",
+        "usetls": false,
+        "tls": "",
+        "influxdbVersion": "2.0",
+        "url": "http://influxdb:8086",
+        "timeout": 10,
+        "rejectUnauthorized": true
+    },
+    {
+        "id": "18b18af3b208d991",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-contrib-influxdb": "0.7.0"
+        }
     }
 ]
