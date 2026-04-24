@@ -20,12 +20,16 @@ Usage:
   python simulation.py                   # real-time (15 min between publishes)
   python simulation.py --fast            # 1 second between publishes
   python simulation.py --instant         # no delay, dump all at once
+  python simulation.py --continuous      # loop forever, one day at a time
+  python simulation.py --days 7          # run 7 days then stop
   python simulation.py --broker test.mosquitto.org
 """
 
 import argparse
+import csv
 import json
 import math
+import os
 import random
 import time
 from datetime import datetime, timedelta, timezone
@@ -157,6 +161,12 @@ def main():
                         help="Print payloads without connecting to MQTT")
     parser.add_argument("--seed", type=int, default=None,
                         help="Random seed for reproducibility")
+    parser.add_argument("--continuous", action="store_true",
+                        help="Loop forever, restarting each day (Ctrl-C to stop)")
+    parser.add_argument("--days", type=int, default=1,
+                        help="Number of days to simulate (default: 1; ignored if --continuous)")
+    parser.add_argument("--csv", metavar="PATH", default=None,
+                        help="Write all generated reports to a CSV file (e.g. data/sim.csv)")
     args = parser.parse_args()
 
     if args.seed is not None:
@@ -177,44 +187,90 @@ def main():
         time.sleep(1)  # let connection establish
         client.publish(TOPIC_LOG, json.dumps({"event": "sim_start"}))
 
-    # Generate and publish 96 windows (24 h / 15 min)
     n_windows = int(timedelta(hours=24) / REPORT_EVERY)
-    print(f"\nSimulating {n_windows} reports over 24 hours "
-          f"(delay={delay}s between publishes)\n")
-    print(f"{'Seq':>4}  {'Time':>8}  {'Intensity':>9}  "
-          f"{'US det':>6}  {'US sec':>7}  {'PIR':>4}")
-    print("-" * 52)
+    total_days = 0
+    total_reports = 0
+    day_num = 0
+    day_start = SIM_START
 
-    for i in range(n_windows):
-        seq = i + 1
-        ts = SIM_START + REPORT_EVERY * seq
-        hour_frac = ts.hour + ts.minute / 60.0
-        intensity = traffic_intensity(hour_frac)
+    loop_forever = args.continuous
+    max_days = args.days
+    csv_rows: list[dict] = []
 
-        report = generate_report(seq, ts, intensity)
-        payload = json.dumps(report)
+    print(f"Mode: {'continuous (Ctrl-C to stop)' if loop_forever else f'{max_days} day(s)'}")
+    print(f"Delay: {delay}s between publishes\n")
 
-        us = report["ultrasonic"]
-        print(f"{seq:4d}  {report['gps']['time']:>8}  {intensity:9.3f}  "
-              f"{us['detections']:6d}  {us['total_presence_sec']:7.1f}  "
-              f"{report['pir']['triggers']:4d}")
+    try:
+        while loop_forever or day_num < max_days:
+            day_num += 1
+            print(f"\n{'=' * 52}")
+            print(f"Day {day_num} — {day_start.strftime('%Y-%m-%d')}")
+            print(f"{'Seq':>4}  {'Time':>8}  {'Intensity':>9}  "
+                  f"{'US det':>6}  {'US sec':>7}  {'PIR':>4}")
+            print("-" * 52)
 
-        if client:
-            result = client.publish(args.topic, payload, qos=0)
-            if result.rc != 0:
-                print(f"  ⚠  Publish failed (rc={result.rc})")
+            for i in range(n_windows):
+                seq = total_reports + i + 1
+                ts = day_start + REPORT_EVERY * (i + 1)
+                hour_frac = ts.hour + ts.minute / 60.0
+                intensity = traffic_intensity(hour_frac)
 
-        if delay > 0 and i < n_windows - 1:
-            time.sleep(delay)
+                report = generate_report(seq, ts, intensity)
+                payload = json.dumps(report)
+
+                us = report["ultrasonic"]
+                print(f"{seq:4d}  {report['gps']['time']:>8}  {intensity:9.3f}  "
+                      f"{us['detections']:6d}  {us['total_presence_sec']:7.1f}  "
+                      f"{report['pir']['triggers']:4d}")
+
+                if args.csv:
+                    csv_rows.append({
+                        "timestamp":      ts.isoformat(),
+                        "seq":            report["seq"],
+                        "gps_lat":        report["gps"]["lat"],
+                        "gps_lon":        report["gps"]["lon"],
+                        "us_detections":  report["ultrasonic"]["detections"],
+                        "us_presence_sec": report["ultrasonic"]["total_presence_sec"],
+                        "pir_triggers":   report["pir"]["triggers"],
+                        "uptime_sec":     report["uptime_sec"],
+                        "intensity":      round(intensity, 4),
+                    })
+
+                if client:
+                    result = client.publish(args.topic, payload, qos=0)
+                    if result.rc != 0:
+                        print(f"  ⚠  Publish failed (rc={result.rc})")
+
+                if delay > 0 and not (i == n_windows - 1 and not loop_forever and day_num == max_days):
+                    time.sleep(delay)
+
+            total_reports += n_windows
+            total_days += 1
+            day_start += timedelta(hours=24)
+            print(f"\nDay {day_num} complete — {n_windows} reports published.")
+
+    except KeyboardInterrupt:
+        print(f"\n\nInterrupted after {total_days} day(s), {total_reports} reports.")
 
     # Done
     print(f"\n{'=' * 52}")
-    print(f"Simulation complete — {n_windows} reports published.")
+    print(f"Simulation complete — {total_reports} reports over {total_days} day(s).")
     if client:
-        client.publish(TOPIC_LOG, json.dumps({"event": "sim_end"}))
+        client.publish(TOPIC_LOG, json.dumps({"event": "sim_end",
+                                               "days": total_days,
+                                               "reports": total_reports}))
         time.sleep(0.5)
         client.loop_stop()
         client.disconnect()
+
+    if args.csv and csv_rows:
+        out = args.csv
+        os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
+        with open(out, "w", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=csv_rows[0].keys())
+            writer.writeheader()
+            writer.writerows(csv_rows)
+        print(f"CSV written → {out}  ({len(csv_rows)} rows)")
 
 
 if __name__ == "__main__":
