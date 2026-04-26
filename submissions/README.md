@@ -4,8 +4,7 @@ Course deliverable snapshots for EECE 5155. Each subdirectory corresponds to a m
 
 | Milestone | Directory | Description |
 |-----------|-----------|-------------|
-| E1 | [E1/](E1/) | Initial circuit design and GPS chip implementation |
-| E2 | E2/ | *(pending)* |
-| E3 | E3/ | *(pending)* |
+| E1 | [E1/](E1/) | Initial circuit design, ESP32 firmware, and Wokwi GPS chip implementation |
+| E2 + E3 | [E2E3/](E2E3/) | Combined final deliverable: data pipeline (Part A) and ML/AI analysis (Part B) |
 
 Deliverables can also be referenced by the git commit hash at the time of submission.

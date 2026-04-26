@@ -28,15 +28,34 @@ The gateway runs on a Raspberry Pi CM4. All pipeline services are containerized 
 | [firmware/](firmware/) | ESP32 Arduino sketch + Wokwi GPS chip |
 | [pipeline/](pipeline/) | Docker Compose stack (Traefik, Mosquitto, InfluxDB, Node-RED, Grafana) |
 | [simulation/](simulation/) | Python script to generate and publish 24 h of synthetic sensor data |
-| [analysis/](analysis/) | Data analysis: Node-RED flows, Jupyter notebooks, and other exploration tools |
-| [data/](data/) | Exported datasets and analysis outputs |
-| [submissions/](submissions/) | Course deliverable snapshots (E1, E2, E3) |
+| [analysis/](analysis/) | Node-RED flow, Jupyter notebooks, and ML classifier |
+| [data/](data/) | Exported datasets (`sim.csv`) |
+| [submissions/](submissions/) | Course deliverable snapshots |
 
 ## Quick Start
 
-1. Copy `pipeline/env-temp` to `pipeline/.env` and fill in your credentials.
-2. Start the pipeline: `cd pipeline && docker compose up -d`
-3. Import `analysis/nodered.json` into Node-RED (http://localhost:1880).
-4. Flash the firmware to an ESP32, or open `firmware/diagram.json` in [Wokwi](https://wokwi.com).
-5. To test without hardware: `cd simulation && python simulation.py --fast`
+```bash
+# 1. Install Python dependencies
+python -m venv iotvenv && source iotvenv/bin/activate
+pip install -r requirements.txt
+
+# 2. Start the pipeline
+cd pipeline && docker compose up -d
+
+# 3. Import analysis/nodered.json into Node-RED at http://localhost:1880
+#    (hamburger → Import; update the InfluxDB node with your token and host IP)
+
+# 4. Run the simulation — publishes 96 reports and writes a CSV
+python simulation/simulation.py --fast --csv data/sim.csv
+
+# 5. Open Grafana at http://localhost:3000 (credentials in pipeline/.env)
+
+# 6. Explore the data
+jupyter notebook analysis/initial_analysis.ipynb
+
+# 7. Run the pedestrian/cyclist ML classifier
+jupyter notebook analysis/ml_classifier.ipynb
+```
+
+To test with real hardware, flash `firmware/` to an ESP32 or open `firmware/diagram.json` in [Wokwi](https://wokwi.com).
 

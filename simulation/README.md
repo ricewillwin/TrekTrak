@@ -17,7 +17,8 @@ Ultrasonic detections, dwell time, and PIR triggers are all derived from the int
 ## Setup
 
 ```bash
-pip install paho-mqtt
+pip install -r requirements.txt   # from repo root
+# or just: pip install paho-mqtt
 ```
 
 ## Usage
@@ -35,11 +36,32 @@ python simulation.py --instant
 # Dry-run: print payloads without connecting to MQTT
 python simulation.py --dry-run
 
-# Point at a specific broker
-python simulation.py --broker 192.168.1.10 --port 1883
+# Export all generated reports to a CSV for offline analysis
+python simulation.py --fast --csv ../data/sim.csv
+
+# Simulate multiple days
+python simulation.py --fast --days 7 --csv ../data/week.csv
+
+# Loop forever (Ctrl-C to stop)
+python simulation.py --continuous
 
 # Reproducible run
 python simulation.py --fast --seed 42
 ```
 
 Default broker is `localhost:1883` (the Mosquitto container). The script publishes to the `trektrak/sensor/report` topic.
+
+## CSV Output Format
+
+When `--csv PATH` is provided the script writes one row per 15-minute window:
+
+| Column | Description |
+|---|---|
+| `timestamp` | ISO-8601 UTC timestamp (end of window) |
+| `seq` | Report sequence number |
+| `gps_lat` / `gps_lon` | Sensor GPS coordinates |
+| `us_detections` | Ultrasonic detection count |
+| `us_presence_sec` | Total detected presence (seconds) |
+| `pir_triggers` | PIR motion trigger count |
+| `uptime_sec` | Sensor uptime |
+| `intensity` | Ground-truth traffic intensity 0–1 (from model) |
